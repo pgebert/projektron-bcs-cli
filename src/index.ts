@@ -1,9 +1,19 @@
 #!/usr/bin/env node
 
-import puppeteer from 'puppeteer';
+import 'dotenv/config'
+import puppeteer, {Page} from 'puppeteer';
+
+require('dotenv').config()
+
 
 class Task {
-    constructor(ticket, description, time) {
+    ticket: string
+    description: string
+    hours: string
+    minutes: string
+    projectId: string
+
+    constructor(ticket: string, description: string, time: string) {
         this.ticket = ticket;
         this.description = description;
         this.hours = this.splitTime(time)[0];
@@ -11,8 +21,8 @@ class Task {
         this.projectId = this.getProjectId();
     }
 
-    splitTime(time) {
-        return time.split(":").map(t => t ? t : 0);
+    splitTime(time: string): string[] {
+        return time.split(":").map(t => t ? t : '0');
     }
 
     getProjectId() {
@@ -39,7 +49,7 @@ const tasks = [
     new Task('SM-102', 'SM Test', '1:15'),
 ];
 
-const quit = (browser) => {
+const quit = () => {
     process.exit(1);
 }
 
@@ -63,7 +73,7 @@ const quit = (browser) => {
     await page.type('#label_pwd', password);
 
     await page.click('#loginbutton')
-    
+
     await page.waitForSelector('input.notificationPermissionLater')
         .then((btn) => btn.click());
 
@@ -73,19 +83,20 @@ const quit = (browser) => {
 
 })();
 
-async function insertTask(page, task) {
+
+async function insertTask(page: Page, task: Task) {
     if (task.projectId) {
         await page.evaluate(task => {
             const rowsForProjectId = document.querySelectorAll(`tr[data-listtaskgroupoid="${task.projectId}_JTask"]`);
             const lastRowForProjectId = rowsForProjectId[rowsForProjectId.length - 1]
 
-            const hourInput = lastRowForProjectId.querySelector(`td[name="effortExpense"] > span > input:nth-child(1)`);
+            const hourInput = lastRowForProjectId.querySelector(`td[name="effortExpense"] > span > input:nth-child(1)`) as HTMLInputElement;
             hourInput.value = task.hours;
 
-            const minuteInput = lastRowForProjectId.querySelector(`td[name="effortExpense"] > span > input:nth-child(3)`);
+            const minuteInput = lastRowForProjectId.querySelector(`td[name="effortExpense"] > span > input:nth-child(3)`) as HTMLInputElement;
             minuteInput.value = task.minutes;
 
-            const descriptionInput = lastRowForProjectId.querySelector(`td[name="description"] > textarea`);
+            const descriptionInput = lastRowForProjectId.querySelector(`td[name="description"] > textarea`) as HTMLInputElement;
             descriptionInput.value = task.description;
         }, task);
 

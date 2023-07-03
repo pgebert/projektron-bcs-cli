@@ -12,13 +12,18 @@ nerves.
 
 # Usage
 
+## Requirements
+
+- node >= v16.16.0
+
 ## Installation
 
 Clone this repository and execute the following steps:
 
 ```shell
 cd bcs-cli
-npm install -g .
+npm run build
+npm install --location=global .
 ```
 
 ## Examples
@@ -43,12 +48,21 @@ Contributions, [issues](https://github.com/pgebert/bcs-cli/issues) and feature r
 
 ## 💻 Development
 
+You may want to create a `.env` file in the project ,directory with the evironment variables `BCS_URL`, `BCS_USERNAME`
+and `BCS_PASSWORD`.
+
 To run the application without installing it globally:
 
 ```shell
 cd bcs-cli
 npm install
-node .
+
+# hot reloading
+npm run start:dev
+
+# build and run
+npm run build
+npm run start
 ```
 
 ## Show your support
