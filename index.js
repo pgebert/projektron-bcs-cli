@@ -63,18 +63,20 @@ const quit = (browser) => {
     await page.type('#label_pwd', password);
 
     await page.click('#loginbutton')
-
-    const notificationDialogButton = await page.$('input.notificationPermissionLater')
-    await notificationDialogButton.click()
+    
+    await page.waitForSelector('input.notificationPermissionLater')
+        .then((btn) => btn.click());
 
     tasks.forEach(task => insertTask(page, task));
+
+    // await browser.close()
 
 })();
 
 async function insertTask(page, task) {
     if (task.projectId) {
         await page.evaluate(task => {
-            const rowsForProjectId = Array.from(document.querySelectorAll(`tr[data-listtaskgroupoid="${task.projectId}_JTask"]`));
+            const rowsForProjectId = document.querySelectorAll(`tr[data-listtaskgroupoid="${task.projectId}_JTask"]`);
             const lastRowForProjectId = rowsForProjectId[rowsForProjectId.length - 1]
 
             const hourInput = lastRowForProjectId.querySelector(`td[name="effortExpense"] > span > input:nth-child(1)`);
