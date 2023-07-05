@@ -1,24 +1,34 @@
-class Task {
+import {toMinutes, toTimeString} from "./utils";
+
+interface ITask {
     ticket: string
     description: string
-    hours: string
-    minutes: string
+    time: string
+}
+
+interface IPattern {
+    regex: RegExp;
+    value: string;
+    source: keyof ITask;
+}
+
+
+export class Task {
+    ticket: string
+    description: string
+    minutes: number
     projectId: string
 
-    constructor(ticket: string, description: string, time: string) {
+    constructor({ticket, description, time}: ITask) {
         this.ticket = ticket;
         this.description = description;
-        this.hours = this.splitTime(time)[0];
-        this.minutes = this.splitTime(time)[1];
+        this.minutes = toMinutes(time);
         this.projectId = this.getProjectId();
-    }
 
-    splitTime(time: string): string[] {
-        return time.split(":").map(t => t ? t : '0');
     }
 
     getProjectId() {
-        const patterns = [
+        const patterns: IPattern[] = [
             {regex: /daily/i, value: '1678898995032', source: 'description'},
             {regex: /orgsese-/i, value: '1678898695172', source: 'ticket'},
             {regex: /oramy-/i, value: '1678898995032', source: 'ticket'},
@@ -31,5 +41,10 @@ class Task {
             }
         }
         return null;
+    }
+
+    toString(): string {
+        const {description, ticket, minutes} = this;
+        return `Task(description: ${description}, ticket: ${ticket}, time: ${toTimeString(minutes)})`;
     }
 }

@@ -23,7 +23,9 @@
     "test:dev": "ts-mocha test/**/*.spec.ts -w --watch-files '**/*.ts'"
   },
   "dependencies": {
+    "ansi-color": "^0.2.1",
     "dotenv": "^16.3.1",
+    "enquirer": "^2.3.6",
     "puppeteer": "^20.7.4"
   },
   "devDependencies": {

@@ -4,10 +4,10 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": true,
-    "outDir": "dist",
+    "outDir": "dist"
   },
   "include": [
     "src/**/*",
-    "test/**/*",
+    "test/**/*"
   ]
 }
