@@ -1,4 +1,4 @@
-import {toMinutes, toTimeString} from "./utils";
+import {Time} from "./time";
 
 interface ITask {
     ticket: string
@@ -16,13 +16,13 @@ interface IPattern {
 export class Task {
     ticket: string
     description: string
-    minutes: number
+    time: Time
     projectId: string
 
     constructor({ticket, description, time}: ITask) {
         this.ticket = ticket;
         this.description = description;
-        this.minutes = toMinutes(time);
+        this.time = Time.fromString(time);
         this.projectId = this.getProjectId();
 
     }
@@ -36,7 +36,7 @@ export class Task {
         ];
 
         for (let pattern of patterns) {
-            if (pattern.regex.test(this[pattern.source])) {
+            if (pattern.regex.test(<string>this[pattern.source])) {
                 return pattern.value;
             }
         }
@@ -44,7 +44,7 @@ export class Task {
     }
 
     toString(): string {
-        const {description, ticket, minutes} = this;
-        return `Task(description: ${description}, ticket: ${ticket}, time: ${toTimeString(minutes)})`;
+        const {description, ticket, time} = this;
+        return `Task(description: ${description}, ticket: ${ticket}, time: ${time})`;
     }
 }

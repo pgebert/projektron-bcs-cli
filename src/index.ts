@@ -45,9 +45,9 @@ colors.theme({
 
 const validateInput = (input: string): boolean => /\d{1,2}:\d{1,2}/i.test(input);
 
+const handleAddCommand = async () => {
 
-const main = async () => {
-
+    console.log("Handle add command")
     const tasks: Task[] = [];
 
     await prompt([
@@ -88,6 +88,31 @@ const main = async () => {
             moreTasks = input.more === "true";
         });
     }
+}
+
+
+const main = async () => {
+
+
+    await prompt({
+        type: 'select',
+        name: 'command',
+        message: 'What do you want to do?',
+        choices: ['login', 'add', 'get', 'check']
+    }).then((response) => {
+        console.log('Answer:', response)
+
+        switch (response.command) {
+            case 'add':
+                handleAddCommand();
+                break;
+            default:
+                console.log("Not implemented yet.");
+                break;
+        }
+    }).catch(console.error);
+
+
 };
 
 main().catch(console.error);

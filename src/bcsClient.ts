@@ -1,4 +1,5 @@
 import puppeteer, {Page} from "puppeteer";
+import {Task} from "./task";
 
 interface BcsClientInterface {
     add(tasks: Task[]): void;
@@ -53,10 +54,10 @@ export class BcsClient implements BcsClientInterface {
                 const lastRowForProjectId = rowsForProjectId[rowsForProjectId.length - 1]
 
                 const hourInput = lastRowForProjectId.querySelector(`td[name="effortExpense"] > span > input:nth-child(1)`) as HTMLInputElement;
-                hourInput.value = task.hours;
+                hourInput.value = task.time.getHours().toString();
 
                 const minuteInput = lastRowForProjectId.querySelector(`td[name="effortExpense"] > span > input:nth-child(3)`) as HTMLInputElement;
-                minuteInput.value = task.minutes;
+                minuteInput.value = task.time.minutes.toString();
 
                 const descriptionInput = lastRowForProjectId.querySelector(`td[name="description"] > textarea`) as HTMLInputElement;
                 descriptionInput.value = task.description;
