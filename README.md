@@ -63,6 +63,9 @@ npm run start:dev
 # build and run
 npm run build
 npm run start
+
+# test
+ npm run test
 ```
 
 ## Show your support
