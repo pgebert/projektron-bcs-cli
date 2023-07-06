@@ -98,7 +98,7 @@ const main = async () => {
         type: 'select',
         name: 'command',
         message: 'What do you want to do?',
-        choices: ['login', 'add', 'get', 'check']
+        choices: ['login', 'add', 'get', 'check', 'quit']
     }).then((response) => {
         console.log('Answer:', response)
 
