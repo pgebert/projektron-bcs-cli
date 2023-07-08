@@ -2,7 +2,11 @@ import puppeteer, {Page} from "puppeteer";
 import {Task} from "./task";
 
 interface BcsClientInterface {
-    add(tasks: Task[]): void;
+    add(tasks: Task[]): Promise<void>
+
+    fetch(): Promise<Task[]>
+
+    reset(): Promise<void>
 }
 
 
@@ -16,17 +20,45 @@ export class BcsClient implements BcsClientInterface {
     private username = process.env.BCS_USERNAME
     private password = process.env.BCS_PASSWORD
 
+    private headless = false
+    private viewport = {width: 1080, height: 1024}
+
     async add(tasks: Task[]): Promise<void> {
-        const browser = await puppeteer.launch({headless: false});
+        const browser = await puppeteer.launch({headless: this.headless});
         try {
             const page = await browser.newPage();
-            await page.setViewport({width: 1080, height: 1024});
+            await page.setViewport(this.viewport);
 
             await this.login(page);
 
             for (const task of tasks) {
                 await this.insertTask(page, task);
             }
+
+            // TODO save result
+        } finally {
+            await browser.close();
+        }
+
+    }
+
+    async fetch(): Promise<Task[]> {
+        // TODO
+        return [];
+    }
+
+    async reset(): Promise<void> {
+        const browser = await puppeteer.launch({headless: this.headless});
+        try {
+            const page = await browser.newPage();
+            await page.setViewport(this.viewport);
+
+            await this.login(page);
+
+            await this.resetAllTasks(page);
+
+
+            // TODO save result
         } finally {
             await browser.close();
         }
@@ -67,5 +99,10 @@ export class BcsClient implements BcsClientInterface {
             await plusButton.click()
         }
     }
+
+    private async resetAllTasks(page: Page) {
+        // TODO
+    }
+
 
 }
