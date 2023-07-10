@@ -4,6 +4,7 @@ interface ITask {
     ticket: string
     description: string
     time: string
+    projectId?: string
 }
 
 interface IPattern {
@@ -19,15 +20,15 @@ export class Task {
     time: Time
     projectId: string
 
-    constructor({ticket, description, time}: ITask) {
+    constructor({ticket, description, time, projectId}: ITask) {
         this.ticket = ticket;
         this.description = description;
         this.time = Time.fromString(time);
-        this.projectId = this.getProjectId();
+        this.projectId = projectId || this.deriveProjectId();
 
     }
 
-    getProjectId() {
+    deriveProjectId() {
         const patterns: IPattern[] = [
             {regex: /daily/i, value: '1678898995032', source: 'description'},
             {regex: /orgsese-/i, value: '1678898695172', source: 'ticket'},
@@ -40,7 +41,7 @@ export class Task {
                 return pattern.value;
             }
         }
-        return null;
+        return '1678899081811';
     }
 
     toString(): string {

@@ -25,15 +25,20 @@ colors.theme({
 
 
 // const tasks = [
-//     new Task('', 'Daily', '0:15'),
-//     new Task('ORAMY-98', 'ORAMY Test', '1:15'),
-//     new Task('ORGSESE-104', 'ORGSESE Test', '1:15'),
-//     new Task('SM-102', 'SM Test', '1:15'),
+//     new Task({ticket: '', description: 'Daily', time: '0:15'}),
+//     new Task({ticket: 'ORAMY-98', description: 'ORAMY Test', time: '1:15'}),
+//     new Task({ticket: 'ORGSESE-104', description: 'ORGSESE Test', time: '1:15'}),
+//     new Task({ticket: 'SM-102', description: 'SM Test', time: '1:15'}),
 // ];
 //
 //
-// const bcsClient = new BcsClient()
-// bcsClient.add(tasks).catch(console.error);
+// (async () => {
+//     const bcsClient = new BcsClient()
+//
+//     await bcsClient.add(tasks).catch(console.error);
+//     await bcsClient.fetch().then(tasks => console.log(tasks));
+//     // await bcsClient.reset().catch(console.error);
+// })()
 
 
 // console.log(colors.red('✔ This is a red string!'));
@@ -72,20 +77,25 @@ const handleAddCommand = async () => {
                     {name: 'description', message: 'What did you work?', initial: 'Coded some cool stuff'},
                     {name: 'ticket', message: 'Has it a ticket number?', initial: ''},
                     {name: 'time', message: 'How long did it take you?', initial: '0:15'},
-                    {name: 'more', message: 'Do want to add another task?', initial: 'true'}
+                    // {name: 'more', message: 'Do want to add another task?', initial: 'true'}
                 ],
                 validate: ({time}) => {
                     console.log("Called validation with ", time);
                     return validateInput(time);
                 }
+            },
+            {
+                type: 'confirm',
+                name: 'more',
+                message: 'Do want to add another task?',
+                initial: 'Y',
             }
-        ]).then(({input}) => {
-
+        ]).then(({input, more}) => {
             const task = new Task(input)
             tasks.push(task);
             console.log(`Added ${task}`);
 
-            moreTasks = input.more === "true";
+            moreTasks = more;
         });
     }
 }
@@ -98,13 +108,13 @@ const main = async () => {
         type: 'select',
         name: 'command',
         message: 'What do you want to do?',
-        choices: ['login', 'add', 'get', 'check', 'quit']
+        choices: ['login', 'add', 'get', 'reset', 'check', 'quit']
     }).then((response) => {
         console.log('Answer:', response)
 
         switch (response.command) {
             case 'add':
-                handleAddCommand();
+                handleAddCommand().then(() => main());
                 break;
             default:
                 console.log("Not implemented yet.");

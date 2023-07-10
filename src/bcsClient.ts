@@ -1,6 +1,7 @@
 import puppeteer, {Page} from "puppeteer";
 import {Task} from "./task";
 
+
 interface BcsClientInterface {
     add(tasks: Task[]): Promise<void>
 
@@ -31,11 +32,13 @@ export class BcsClient implements BcsClientInterface {
 
             await this.login(page);
 
+            // TODO reset before adding
+
             for (const task of tasks) {
                 await this.insertTask(page, task);
             }
 
-            // TODO save result
+            await this.save(page);
         } finally {
             await browser.close();
         }
@@ -43,8 +46,21 @@ export class BcsClient implements BcsClientInterface {
     }
 
     async fetch(): Promise<Task[]> {
-        // TODO
-        return [];
+        let tasks = [];
+
+        const browser = await puppeteer.launch({headless: this.headless});
+        try {
+            const page = await browser.newPage();
+            await page.setViewport(this.viewport);
+
+            await this.login(page);
+
+            tasks = await this.fetchTasks(page)
+
+        } finally {
+            // await browser.close();
+        }
+        return tasks;
     }
 
     async reset(): Promise<void> {
@@ -57,8 +73,7 @@ export class BcsClient implements BcsClientInterface {
 
             await this.resetAllTasks(page);
 
-
-            // TODO save result
+            await this.save(page);
         } finally {
             await browser.close();
         }
@@ -79,17 +94,23 @@ export class BcsClient implements BcsClientInterface {
             .then((btn) => btn.click());
     }
 
+    private async save(page: Page) {
+
+        await page.waitForSelector('input.button[data-bcs-button-name="Apply"]')
+            .then((btn) => btn.click());
+    }
+
     private async insertTask(page: Page, task: Task) {
         if (task.projectId) {
             await page.evaluate(task => {
+
                 const rowsForProjectId = document.querySelectorAll(`tr[data-listtaskgroupoid="${task.projectId}_JTask"]`);
-                const lastRowForProjectId = rowsForProjectId[rowsForProjectId.length - 1]
+                const lastRowForProjectId = rowsForProjectId[rowsForProjectId.length - 1];
 
-                const hourInput = lastRowForProjectId.querySelector(`td[name="effortExpense"] > span > input:nth-child(1)`) as HTMLInputElement;
-                hourInput.value = task.time.getHours().toString();
+                const timeInput = lastRowForProjectId.querySelector(`td[name="effortExpense"] > span > input:nth-child(3)`) as HTMLInputElement;
+                timeInput.value = task.time.minutes.toString();
 
-                const minuteInput = lastRowForProjectId.querySelector(`td[name="effortExpense"] > span > input:nth-child(3)`) as HTMLInputElement;
-                minuteInput.value = task.time.minutes.toString();
+                // TODO ticket number
 
                 const descriptionInput = lastRowForProjectId.querySelector(`td[name="description"] > textarea`) as HTMLInputElement;
                 descriptionInput.value = task.description;
@@ -100,8 +121,47 @@ export class BcsClient implements BcsClientInterface {
         }
     }
 
+    private async fetchTasks(page: Page): Promise<Task[]> {
+
+        const values = await page.evaluate(async () => {
+
+            const values = [];
+
+            const rows = document.querySelectorAll('table[id="daytimerecording,Content,daytimerecordingTaskList_table"] > tbody > tr[data-listtaskgroupoid]');
+
+            rows.forEach(row => {
+                const descriptionInput = row.querySelector(`td[name="description"] > textarea`) as HTMLInputElement;
+                const ticketInput = row.querySelector(`td[name="effortAttr1"] > input`) as HTMLInputElement;
+                const hourInput = row.querySelector(`td[name="effortExpense"] > span > input:nth-child(1)`) as HTMLInputElement;
+                const minuteInput = row.querySelector(`td[name="effortExpense"] > span > input:nth-child(3)`) as HTMLInputElement;
+                const projectId = row.getAttribute("data-listtaskgroupoid").replace('_JTask', '');
+
+                if (descriptionInput.value !== '' || ticketInput.value !== '') {
+                    values.push({
+                        ticket: ticketInput.value,
+                        description: descriptionInput.value,
+                        time: `${hourInput.value}:${minuteInput.value}`,
+                        projectId: projectId
+                    });
+                }
+            })
+
+            return values;
+
+        });
+
+        return values.map(value => new Task(value));
+
+    }
+
     private async resetAllTasks(page: Page) {
-        // TODO
+
+        await page.evaluate(() => {
+
+            const cleanButtons = document.querySelectorAll("a.cleanTimeRecordingRow_Link")
+            cleanButtons.forEach(button => (button as HTMLInputElement).click())
+        });
+
     }
 
 
