@@ -2,6 +2,7 @@
 
 import {config as dotenvConfig} from 'dotenv';
 import {Task} from './task';
+import {Time} from "./time";
 
 const colors = require('ansi-colors');
 const {prompt} = require('enquirer');
@@ -54,6 +55,7 @@ const handleAddCommand = async () => {
 
     console.log("Handle add command")
     const tasks: Task[] = [];
+    let targetTime = new Time(0);
 
     await prompt([
         {
@@ -63,7 +65,9 @@ const handleAddCommand = async () => {
             initial: '8:00',
             validate: validateInput
         }
-    ]).then(console.log);
+    ]).then((input) => {
+        targetTime = Time.fromString(input.total);
+    });
 
     let moreTasks = true;
 
@@ -84,6 +88,19 @@ const handleAddCommand = async () => {
                     return validateInput(time);
                 }
             },
+        ]).then(({input, more}) => {
+            tasks.push(new Task(input));
+            const recordedTime = tasks.map((task) => task.time).reduce((a, b) => a.plus(b), new Time(0));
+            const missingTime = targetTime.minus(recordedTime);
+
+            if (missingTime.minutes <= 0) {
+                console.log(`You reached your goal 🎉`);
+            } else {
+                console.log(`Added ${recordedTime} in total - ${missingTime} still missing.`);
+            }
+        });
+
+        await prompt([
             {
                 type: 'confirm',
                 name: 'more',
@@ -91,10 +108,6 @@ const handleAddCommand = async () => {
                 initial: 'Y',
             }
         ]).then(({input, more}) => {
-            const task = new Task(input)
-            tasks.push(task);
-            console.log(`Added ${task}`);
-
             moreTasks = more;
         });
     }
