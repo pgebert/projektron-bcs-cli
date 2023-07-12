@@ -3,6 +3,7 @@
 import {config as dotenvConfig} from 'dotenv';
 import {Task} from './task';
 import {Time} from "./time";
+import {BcsClient} from "./bcsClient";
 
 const colors = require('ansi-colors');
 const {prompt} = require('enquirer');
@@ -88,7 +89,7 @@ const handleAddCommand = async () => {
                     return validateInput(time);
                 }
             },
-        ]).then(({input, more}) => {
+        ]).then(({input}) => {
             tasks.push(new Task(input));
             const recordedTime = tasks.map((task) => task.time).reduce((a, b) => a.plus(b), new Time(0));
             const missingTime = targetTime.minus(recordedTime);
@@ -107,10 +108,26 @@ const handleAddCommand = async () => {
                 message: 'Do want to add another task?',
                 initial: 'Y',
             }
-        ]).then(({input, more}) => {
+        ]).then(({more}) => {
             moreTasks = more;
         });
     }
+
+    await prompt([
+        {
+            type: 'confirm',
+            name: 'save',
+            message: 'Do want to save your tasks to BCS?',
+            initial: 'Y',
+        }
+    ]).then(async ({save}) => {
+        if (save) {
+            //TODO may reset before
+            const bcsClient = new BcsClient()
+            await bcsClient.reset()
+            await bcsClient.add(tasks).then(() => console.log("Saved new tasks"))
+        }
+    });
 }
 
 

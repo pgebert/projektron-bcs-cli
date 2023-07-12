@@ -21,7 +21,8 @@ export class BcsClient implements BcsClientInterface {
     private username = process.env.BCS_USERNAME
     private password = process.env.BCS_PASSWORD
 
-    private headless = false
+    // private headless = false
+    private headless: boolean | 'new' = 'new'
     private viewport = {width: 1080, height: 1024}
 
     async add(tasks: Task[]): Promise<void> {
@@ -31,8 +32,6 @@ export class BcsClient implements BcsClientInterface {
             await page.setViewport(this.viewport);
 
             await this.login(page);
-
-            // TODO reset before adding
 
             for (const task of tasks) {
                 await this.insertTask(page, task);
@@ -57,8 +56,10 @@ export class BcsClient implements BcsClientInterface {
 
             tasks = await this.fetchTasks(page)
 
+            await this.save(page);
+
         } finally {
-            // await browser.close();
+            await browser.close();
         }
         return tasks;
     }
@@ -98,6 +99,8 @@ export class BcsClient implements BcsClientInterface {
 
         await page.waitForSelector('input.button[data-bcs-button-name="Apply"]')
             .then((btn) => btn.click());
+
+        await page.waitForSelector('div#TimeRecordingService_Success')
     }
 
     private async insertTask(page: Page, task: Task) {
