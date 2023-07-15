@@ -5,6 +5,9 @@ export const handleCommand = async (command: string) => {
 
 
     switch (command) {
+        // case 'login':
+        //     await handleLoginCommand();
+        //     break;
         case 'add':
             await handleAddCommand();
             break;
