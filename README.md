@@ -40,6 +40,10 @@ bcs
 
 Add your time recordings to BCS never was easier 🚀
 
+Hints:
+
+- use `tab` to keep and edit initial values
+
 # Miscellaneous
 
 ## 🤝 Contributing

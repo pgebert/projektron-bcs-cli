@@ -5,7 +5,7 @@ import {Task} from "./task";
 interface BcsClientInterface {
     add(tasks: Task[]): Promise<void>
 
-    fetch(): Promise<Task[]>
+    fetch(date: Date): Promise<Task[]>
 
     reset(): Promise<void>
 }
@@ -44,7 +44,7 @@ export class BcsClient implements BcsClientInterface {
 
     }
 
-    async fetch(): Promise<Task[]> {
+    async fetch(date: Date): Promise<Task[]> {
         let tasks = [];
 
         const browser = await puppeteer.launch({headless: this.headless});
@@ -54,9 +54,9 @@ export class BcsClient implements BcsClientInterface {
 
             await this.login(page);
 
-            tasks = await this.fetchTasks(page)
+            await this.selectDate(page, date);
 
-            await this.save(page);
+            tasks = await this.fetchTasks(page)
 
         } finally {
             await browser.close();
@@ -165,6 +165,31 @@ export class BcsClient implements BcsClientInterface {
             cleanButtons.forEach(button => (button as HTMLInputElement).click())
         });
 
+    }
+
+    private async selectDate(page: Page, date: Date) {
+
+        const year = date.getFullYear()
+        const month = date.getMonth()
+        const day = date.getDate()
+
+        await Promise.all([
+            page.evaluate(([year, month, day]) => {
+
+                //@ts-ignore
+                PopupCalendar.reloadPageByCalendar(
+                    'daytimerecording,Selections,effortRecordingDate',
+                    year,
+                    month,
+                    day,
+                    'daytimerecording,Selections,effortRecordingDate',
+                    'popupCalendarLink.daytimerecording,Selections,effortRecordingDate'
+                );
+
+            }, [year, month, day]),
+            page.waitForSelector('a.dayHighlighted').then((btn) => btn.click()),
+            page.waitForNavigation()
+        ]);
     }
 
 

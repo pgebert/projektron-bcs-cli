@@ -1,4 +1,5 @@
 import {handleAddCommand} from "./addCommand";
+import {handleGetCommand} from "./getCommand";
 
 
 export const handleCommand = async (command: string) => {
@@ -10,6 +11,9 @@ export const handleCommand = async (command: string) => {
         //     break;
         case 'add':
             await handleAddCommand();
+            break;
+        case 'get':
+            await handleGetCommand();
             break;
         default:
             console.log("Not implemented yet.");
