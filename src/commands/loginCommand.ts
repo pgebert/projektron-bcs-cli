@@ -7,16 +7,19 @@ export const handleLoginCommand = async () => {
 
 
     async function authenticate(value, state) {
-        console.log("test");
 
         const bcsClient = new BcsClient()
 
         try {
-            await bcsClient.fetch()
+            const today = new Date();
+            await bcsClient.fetch(today);
             return true
-        } finally {
-            return false;
+        } catch (e) {
+            console.log("Unable to authenticate - are your credentials correct?")
         }
+
+        return false;
+
     }
 
     const CustomAuthPrompt = AuthPrompt.create(authenticate);
