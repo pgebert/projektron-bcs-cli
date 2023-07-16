@@ -3,21 +3,21 @@ import {BcsClient} from "../bcsClient";
 const {prompt} = require('enquirer');
 
 const validateDateInput = (input: string): boolean => /\d{1,2}.\d{1,2}.\d{4}/i.test(input);
-const parseDateInput = (value: string): Date => new Date(value.split(".").reverse().join("-"));
+const dateFromString = (value: string): Date => new Date(value.split(".").reverse().join("-"));
 
 export const handleGetCommand = async () => {
 
     await prompt([
         {
             type: 'input',
-            name: 'date',
+            name: 'dateString',
             message: 'For which date do you want to get your time recordings?',
             initial: new Date().toLocaleDateString(),
             validate: validateDateInput,
         }
-    ]).then(async (input) => {
+    ]).then(async ({dateString}) => {
 
-        const date = parseDateInput(input.date)
+        const date = dateFromString(dateString)
 
         const bcsClient = new BcsClient();
         const tasks = await bcsClient.fetch(date);

@@ -7,7 +7,7 @@ interface BcsClientInterface {
 
     fetch(date: Date): Promise<Task[]>
 
-    reset(): Promise<void>
+    reset(date: Date): Promise<void>
 }
 
 
@@ -64,13 +64,15 @@ export class BcsClient implements BcsClientInterface {
         return tasks;
     }
 
-    async reset(): Promise<void> {
+    async reset(date: Date): Promise<void> {
         const browser = await puppeteer.launch({headless: this.headless});
         try {
             const page = await browser.newPage();
             await page.setViewport(this.viewport);
 
             await this.login(page);
+
+            await this.selectDate(page, date);
 
             await this.resetAllTasks(page);
 

@@ -78,7 +78,7 @@ export const handleAddCommand = async () => {
         if (save) {
             //TODO may reset before
             const bcsClient = new BcsClient()
-            await bcsClient.reset()
+            // await bcsClient.reset()
             await bcsClient.add(tasks).then(() => console.log("Saved new tasks"))
         }
     });
