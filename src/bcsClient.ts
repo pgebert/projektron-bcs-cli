@@ -3,7 +3,7 @@ import {Task} from "./task";
 
 
 interface BcsClientInterface {
-    add(tasks: Task[]): Promise<void>
+    add(date: Date, tasks: Task[]): Promise<void>
 
     fetch(date: Date): Promise<Task[]>
 
@@ -25,13 +25,15 @@ export class BcsClient implements BcsClientInterface {
     private headless: boolean | 'new' = 'new'
     private viewport = {width: 1080, height: 1024}
 
-    async add(tasks: Task[]): Promise<void> {
+    async add(date: Date, tasks: Task[]): Promise<void> {
         const browser = await puppeteer.launch({headless: this.headless});
         try {
             const page = await browser.newPage();
             await page.setViewport(this.viewport);
 
             await this.login(page);
+
+            await this.selectDate(page, date);
 
             for (const task of tasks) {
                 await this.insertTask(page, task);

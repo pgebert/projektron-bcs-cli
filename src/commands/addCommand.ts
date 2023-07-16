@@ -5,23 +5,35 @@ import {BcsClient} from "../bcsClient";
 const {prompt} = require('enquirer');
 
 
-const validateInput = (input: string): boolean => /\d{1,2}:\d{1,2}/i.test(input);
+const validateTimeInput = (input: string): boolean => /\d{1,2}:\d{1,2}/i.test(input);
+const validateDateInput = (input: string): boolean => /\d{1,2}.\d{1,2}.\d{4}/i.test(input);
+
+const dateFromString = (value: string): Date => new Date(value.split(".").reverse().join("-"));
 
 export const handleAddCommand = async () => {
 
     const tasks: Task[] = [];
+    let targetDate = new Date();
     let targetTime = new Time(0);
 
     await prompt([
         {
             type: 'input',
-            name: 'total',
+            name: 'dateString',
+            message: 'For which date do you want to add new time recordings?',
+            initial: new Date().toLocaleDateString(),
+            validate: validateDateInput,
+        },
+        {
+            type: 'input',
+            name: 'timeString',
             message: 'How many hours did you work today in total?',
             initial: '8:00',
-            validate: validateInput
+            validate: validateTimeInput
         }
-    ]).then((input) => {
-        targetTime = Time.fromString(input.total);
+    ]).then(({dateString, timeString}) => {
+        targetDate = dateFromString(dateString);
+        targetTime = Time.fromString(timeString);
     });
 
     let moreTasks = true;
@@ -40,7 +52,7 @@ export const handleAddCommand = async () => {
                 ],
                 validate: ({time}) => {
                     console.log("Called validation with ", time);
-                    return validateInput(time);
+                    return validateTimeInput(time);
                 }
             },
         ]).then(({input}) => {
@@ -76,10 +88,11 @@ export const handleAddCommand = async () => {
         }
     ]).then(async ({save}) => {
         if (save) {
-            //TODO may reset before
+
             const bcsClient = new BcsClient()
-            // await bcsClient.reset()
-            await bcsClient.add(tasks).then(() => console.log("Saved new tasks"))
+            //TODO may reset before or make add more robust
+            await bcsClient.reset(targetDate)
+            await bcsClient.add(targetDate, tasks).then(() => console.log("Saved new tasks"))
         }
     });
 }

@@ -35,8 +35,10 @@ colors.theme({
 // (async () => {
 //     const bcsClient = new BcsClient()
 //
-//     await bcsClient.add(tasks).catch(console.error);
-//     await bcsClient.fetch().then(tasks => console.log(tasks));
+//     const today = new Date();
+//
+//     await bcsClient.add(today, tasks).catch(console.error);
+//     await bcsClient.fetch(today).then(tasks => console.log(tasks));
 //     // await bcsClient.reset().catch(console.error);
 // })()
 
