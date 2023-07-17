@@ -1,6 +1,18 @@
 import puppeteer, {Browser, Page} from "puppeteer";
 import {Task} from "./task";
 
+export class PageNotFoundError extends Error {
+    constructor(m: string) {
+        super(m);
+    }
+}
+
+export class ForbiddenError extends Error {
+    constructor(m: string) {
+        super(m);
+    }
+}
+
 
 interface BcsClientInterface {
     add(date: Date, tasks: Task[]): Promise<void>
@@ -15,7 +27,6 @@ export class BcsClient implements BcsClientInterface {
     private static instance: BcsClient;
     private headless: boolean | 'new' = false
     private viewport = {width: 1080, height: 1024}
-    private baseUrl: string
     private browser: Browser
     private page: Page
 
@@ -36,9 +47,7 @@ export class BcsClient implements BcsClientInterface {
         return BcsClient.instance;
     }
 
-    async connect(baseUrl: string, username: string, password: string): Promise<boolean> {
-
-        this.baseUrl = baseUrl
+    async connect(baseUrl: string, username: string, password: string) {
 
         this.browser = await puppeteer.launch({headless: this.headless});
 
@@ -46,18 +55,24 @@ export class BcsClient implements BcsClientInterface {
         await this.page.setViewport(this.viewport);
 
         await this.page.goto(`${baseUrl}/bcs/login`)
+            .catch((e) => {
+                this.close();
+                throw new PageNotFoundError(`Can not reach ${baseUrl}/bcs/login`);
+            });
 
         await this.page.type('#label_user', username);
         await this.page.type('#label_pwd', password);
         await this.page.click('#loginbutton');
 
         // TODO fail fast on failed login
-        await this.page.waitForSelector('input.notificationPermissionLater')
-            .then((btn) => btn.click());
+        await this.page.waitForSelector('input.notificationPermissionLater', {timeout: 3000})
+            .then((btn) => btn.click())
+            .catch((e) => {
+                this.close();
+                throw new ForbiddenError(`Can not login to ${baseUrl}/bcs/login`);
+            });
 
         this._isConnected = true;
-
-        return true
     }
 
     async close() {

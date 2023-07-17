@@ -26,7 +26,7 @@ export const handleResetCommand = async () => {
         const date = dateFromString(dateString)
 
         if (confirmed) {
-            const bcsClient = new BcsClient();
+            const bcsClient = await BcsClient.getInstance();
             await bcsClient.reset(date);
             console.log("Finished reset of all time recordings for this date!");
         }

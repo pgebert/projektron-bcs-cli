@@ -2,7 +2,7 @@
 
 import {config as dotenvConfig} from 'dotenv';
 import {handleCommand} from "./commands/commandHandler";
-import {BcsClient} from "./bcsClient";
+import {BcsClient, ForbiddenError, PageNotFoundError} from "./bcsClient";
 
 const colors = require('ansi-colors');
 const {prompt} = require('enquirer');
@@ -34,7 +34,8 @@ colors.theme({
 //
 //
 // (async () => {
-//     const bcsClient = new BcsClient()
+//     const bcsClient = await BcsClient.getInstance();
+//     bcsClient.connect('', '', '');
 //
 //     const today = new Date();
 //
@@ -53,19 +54,51 @@ colors.theme({
 
 const main = async () => {
 
-    let baseUrl = process.env.BCS_URL
-    let username = process.env.BCS_USERNAME
-    let password = process.env.BCS_PASSWORD
+    let baseUrl = process.env.BCS_URL || 'https://bcs.de'
+    let username = process.env.BCS_USERNAME || ''
+    let password = process.env.BCS_PASSWORD || ''
 
 
     const bcsClient = await BcsClient.getInstance();
 
-    // TODO extend this
     while (!bcsClient.isConnected) {
         try {
             await bcsClient.connect(baseUrl, username, password);
+            //TODO store credentials in .env file
         } catch (e) {
-            console.log(e);
+
+            if (e instanceof PageNotFoundError) {
+
+                console.log("Unable to reach the BCS instance - make sure you have access and the base URL is correct.");
+
+                ({baseUrl} = await prompt([
+                    {
+                        type: 'input',
+                        name: 'baseUrl',
+                        message: 'Please provide the base URL of your BCS instance:',
+                        initial: baseUrl,
+                    }
+                ]));
+
+            } else if (e instanceof ForbiddenError) {
+
+                console.log("Unable to login to BCS instance - make sure your credentials are correct.");
+
+                ({username, password} = await prompt([
+                    {
+                        type: 'input',
+                        name: 'username',
+                        message: 'Please provide your username:',
+                    },
+                    {
+                        type: 'password',
+                        name: 'password',
+                        message: 'Please provide your password:',
+                    },
+                ]));
+            } else {
+                console.log(e);
+            }
         }
     }
 
@@ -74,7 +107,7 @@ const main = async () => {
         type: 'select',
         name: 'command',
         message: 'What do you want to do?',
-        choices: ['login', 'add', 'get', 'reset', 'check', 'quit']
+        choices: ['add', 'get', 'reset', 'check', 'quit']
     }).then(({command}) => {
 
         handleCommand(command).then(() => main())
