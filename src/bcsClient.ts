@@ -1,4 +1,4 @@
-import puppeteer, {Page} from "puppeteer";
+import puppeteer, {Browser, Page} from "puppeteer";
 import {Task} from "./task";
 
 
@@ -10,106 +10,104 @@ interface BcsClientInterface {
     reset(date: Date): Promise<void>
 }
 
-
-const quit = () => {
-    process.exit(1);
-}
-
 export class BcsClient implements BcsClientInterface {
 
-    private baseUrl = process.env.BCS_URL
-    private username = process.env.BCS_USERNAME
-    private password = process.env.BCS_PASSWORD
-
-    // private headless = false
-    private headless: boolean | 'new' = 'new'
+    private static instance: BcsClient;
+    private headless: boolean | 'new' = false
     private viewport = {width: 1080, height: 1024}
+    private baseUrl: string
+    private browser: Browser
+    private page: Page
 
-    async add(date: Date, tasks: Task[]): Promise<void> {
-        const browser = await puppeteer.launch({headless: this.headless});
-        try {
-            const page = await browser.newPage();
-            await page.setViewport(this.viewport);
+    private constructor() {
+    }
 
-            await this.login(page);
+    private _isConnected: boolean = false
 
-            await this.selectDate(page, date);
+    get isConnected(): boolean {
+        return this._isConnected;
+    }
 
-            for (const task of tasks) {
-                await this.insertTask(page, task);
-            }
-
-            await this.save(page);
-        } finally {
-            await browser.close();
+    public static async getInstance(): Promise<BcsClient> {
+        if (!BcsClient.instance) {
+            BcsClient.instance = new BcsClient();
         }
 
+        return BcsClient.instance;
+    }
+
+    async connect(baseUrl: string, username: string, password: string): Promise<boolean> {
+
+        this.baseUrl = baseUrl
+
+        this.browser = await puppeteer.launch({headless: this.headless});
+
+        this.page = await this.browser.newPage();
+        await this.page.setViewport(this.viewport);
+
+        await this.page.goto(`${baseUrl}/bcs/login`)
+
+        await this.page.type('#label_user', username);
+        await this.page.type('#label_pwd', password);
+        await this.page.click('#loginbutton');
+
+        // TODO fail fast on failed login
+        await this.page.waitForSelector('input.notificationPermissionLater')
+            .then((btn) => btn.click());
+
+        this._isConnected = true;
+
+        return true
+    }
+
+    async close() {
+        this._isConnected = false;
+        await this.browser.close().then();
+    }
+
+
+    async add(date: Date, tasks: Task[]): Promise<void> {
+
+        // TODO goto page and assert loggedIn
+        await this.selectDate(date);
+
+        for (const task of tasks) {
+            await this.insertTask(task);
+        }
+
+        await this.save();
     }
 
     async fetch(date: Date): Promise<Task[]> {
-        let tasks = [];
 
-        const browser = await puppeteer.launch({headless: this.headless});
-        try {
-            const page = await browser.newPage();
-            await page.setViewport(this.viewport);
+        // TODO goto page and assert loggedIn
+        await this.selectDate(date);
 
-            await this.login(page);
+        return await this.fetchTasks()
 
-            await this.selectDate(page, date);
-
-            tasks = await this.fetchTasks(page)
-
-        } finally {
-            await browser.close();
-        }
-        return tasks;
     }
 
     async reset(date: Date): Promise<void> {
-        const browser = await puppeteer.launch({headless: this.headless});
-        try {
-            const page = await browser.newPage();
-            await page.setViewport(this.viewport);
+        // TODO goto page and assert loggedIn
+        await this.selectDate(date);
 
-            await this.login(page);
+        await this.resetAllTasks();
 
-            await this.selectDate(page, date);
-
-            await this.resetAllTasks(page);
-
-            await this.save(page);
-        } finally {
-            await browser.close();
-        }
-
+        await this.save();
     }
 
-    private async login(page: Page) {
-        await page.goto(`${this.baseUrl}/bcs/login`).catch(error => {
-            console.log(`❌ Failed to reach ${this.baseUrl} - check if BCS_URL is correct and accessible.`);
-            throw error;
-        });
 
-        await page.type('#label_user', this.username);
-        await page.type('#label_pwd', this.password);
-        await page.click('#loginbutton');
+    private async save() {
 
-        await page.waitForSelector('input.notificationPermissionLater')
-            .then((btn) => btn.click());
-    }
-
-    private async save(page: Page) {
-
-        await page.waitForSelector('input.button[data-bcs-button-name="Apply"]')
+        await this.page.waitForSelector('input.button[data-bcs-button-name="Apply"]')
             .then((btn) => btn.click());
 
-        await page.waitForSelector('div#TimeRecordingService_Success')
+        await this.page.waitForSelector('div#TimeRecordingService_Success')
     }
 
-    private async insertTask(page: Page, task: Task) {
+    private async insertTask(task: Task) {
         if (task.projectId) {
-            await page.evaluate(task => {
+            await this.page.evaluate(task => {
 
                 const rowsForProjectId = document.querySelectorAll(`tr[data-listtaskgroupoid="${task.projectId}_JTask"]`);
                 const lastRowForProjectId = rowsForProjectId[rowsForProjectId.length - 1];
@@ -123,14 +121,14 @@ export class BcsClient implements BcsClientInterface {
                 descriptionInput.value = task.description;
             }, task);
 
-            const plusButton = await page.$(`tr[data-listtaskgroupoid="${task.projectId}_JTask"] > td[name="[plusminus]"] > button`)
+            const plusButton = await this.page.$(`tr[data-listtaskgroupoid="${task.projectId}_JTask"] > td[name="[plusminus]"] > button`)
             await plusButton.click()
         }
     }
 
-    private async fetchTasks(page: Page): Promise<Task[]> {
+    private async fetchTasks(): Promise<Task[]> {
 
-        const values = await page.evaluate(async () => {
+        const values = await this.page.evaluate(async () => {
 
             const values = [];
 
@@ -161,9 +159,9 @@ export class BcsClient implements BcsClientInterface {
 
     }
 
-    private async resetAllTasks(page: Page) {
+    private async resetAllTasks() {
 
-        await page.evaluate(() => {
+        await this.page.evaluate(() => {
 
             const cleanButtons = document.querySelectorAll("a.cleanTimeRecordingRow_Link")
             cleanButtons.forEach(button => (button as HTMLInputElement).click())
@@ -171,14 +169,14 @@ export class BcsClient implements BcsClientInterface {
 
     }
 
-    private async selectDate(page: Page, date: Date) {
+    private async selectDate(date: Date) {
 
         const year = date.getFullYear()
         const month = date.getMonth()
         const day = date.getDate()
 
         await Promise.all([
-            page.evaluate(([year, month, day]) => {
+            this.page.evaluate(([year, month, day]) => {
 
                 //@ts-ignore
                 PopupCalendar.reloadPageByCalendar(
@@ -191,10 +189,8 @@ export class BcsClient implements BcsClientInterface {
                 );
 
             }, [year, month, day]),
-            page.waitForSelector('a.dayHighlighted').then((btn) => btn.click()),
-            page.waitForNavigation()
+            this.page.waitForSelector('a.dayHighlighted').then((btn) => btn.click()),
+            this.page.waitForNavigation()
         ]);
     }
-
-
 }

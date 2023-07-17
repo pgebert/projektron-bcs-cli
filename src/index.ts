@@ -2,6 +2,7 @@
 
 import {config as dotenvConfig} from 'dotenv';
 import {handleCommand} from "./commands/commandHandler";
+import {BcsClient} from "./bcsClient";
 
 const colors = require('ansi-colors');
 const {prompt} = require('enquirer');
@@ -51,6 +52,22 @@ colors.theme({
 
 
 const main = async () => {
+
+    let baseUrl = process.env.BCS_URL
+    let username = process.env.BCS_USERNAME
+    let password = process.env.BCS_PASSWORD
+
+
+    const bcsClient = await BcsClient.getInstance();
+
+    // TODO extend this
+    while (!bcsClient.isConnected) {
+        try {
+            await bcsClient.connect(baseUrl, username, password);
+        } catch (e) {
+            console.log(e);
+        }
+    }
 
 
     await prompt({

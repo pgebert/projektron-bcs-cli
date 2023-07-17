@@ -8,7 +8,7 @@ export const handleLoginCommand = async () => {
 
     async function authenticate(value, state) {
 
-        const bcsClient = new BcsClient()
+        const bcsClient = await BcsClient.getInstance();
 
         try {
             const today = new Date();

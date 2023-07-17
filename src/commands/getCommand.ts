@@ -6,7 +6,7 @@ const validateDateInput = (input: string): boolean => /\d{1,2}.\d{1,2}.\d{4}/i.t
 const dateFromString = (value: string): Date => new Date(value.split(".").reverse().join("-"));
 
 export const handleGetCommand = async () => {
-
+    
     await prompt([
         {
             type: 'input',
@@ -19,7 +19,7 @@ export const handleGetCommand = async () => {
 
         const date = dateFromString(dateString)
 
-        const bcsClient = new BcsClient();
+        const bcsClient = await BcsClient.getInstance();
         const tasks = await bcsClient.fetch(date);
 
         if (tasks.length > 0) {
