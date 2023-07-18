@@ -3,6 +3,7 @@
 import {config as dotenvConfig} from 'dotenv';
 import {handleCommand} from "./commands/commandHandler";
 import {BcsClient, ForbiddenError, PageNotFoundError} from "./bcsClient";
+import {setEnvValue} from "./utils/utils";
 
 const colors = require('ansi-colors');
 const {prompt} = require('enquirer');
@@ -64,7 +65,12 @@ const main = async () => {
     while (!bcsClient.isConnected) {
         try {
             await bcsClient.connect(baseUrl, username, password);
-            //TODO store credentials in .env file
+            console.log("Successfully logged in 🎉");
+
+            // save credentials for future visits
+            setEnvValue('BCS_URL', baseUrl);
+            setEnvValue('BCS_USERNAME', username);
+            setEnvValue('BCS_PASSWORD', password);
         } catch (e) {
 
             if (e instanceof PageNotFoundError) {
@@ -82,7 +88,7 @@ const main = async () => {
 
             } else if (e instanceof ForbiddenError) {
 
-                console.log("Unable to login to BCS instance - make sure your credentials are correct.");
+                console.log("Unable to login to BCS instance - please provide your credentials.");
 
                 ({username, password} = await prompt([
                     {
