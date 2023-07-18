@@ -24,7 +24,9 @@ interface BcsClientInterface {
 
 export class BcsClient implements BcsClientInterface {
 
-    private static instance: BcsClient;
+    private static instance: BcsClient
+    private baseUrl: String
+
     private headless: boolean | 'new' = false
     private viewport = {width: 1080, height: 1024}
     private browser: Browser
@@ -46,6 +48,8 @@ export class BcsClient implements BcsClientInterface {
     }
 
     async connect(baseUrl: string, username: string, password: string) {
+
+        this.baseUrl = baseUrl;
 
         this.browser = await puppeteer.launch({headless: this.headless});
 
@@ -94,7 +98,6 @@ export class BcsClient implements BcsClientInterface {
         await this.selectDate(date);
 
         return await this.fetchTasks()
-
     }
 
     async reset(date: Date): Promise<void> {
@@ -106,6 +109,24 @@ export class BcsClient implements BcsClientInterface {
         await this.save();
     }
 
+    async check(): Promise<string> {
+
+        await this.page.goto(`${this.baseUrl}/bcs/mybcs/effortperdaylist/`)
+
+        await this.page.waitForSelector('a.tabselector[title="Aufwände/Tag"]').then(async (btn) => {
+            await btn.click()
+        })
+
+        await this.page.waitForSelector('select.calendarModeSelect');
+        await this.page.select('select.calendarModeSelect', 'M')
+
+        const element = await this.page.waitForSelector('td.listsumfooter[name="deputatSummarySaldo"] > span');
+        const result = await element.evaluate(el => el.textContent);
+
+        await this.page.goto(`${this.baseUrl}/bcs/mybcs/dayeffortrecording/`)
+
+        return result;
+    }
 
     private async save() {
 
@@ -184,6 +205,8 @@ export class BcsClient implements BcsClientInterface {
         const year = date.getFullYear()
         const month = date.getMonth()
         const day = date.getDate()
+
+        await this.page.waitForSelector('span[id="daytimerecording,Selections,effortRecordingDate_intervaldisplay"]');
 
         await Promise.all([
             this.page.evaluate(([year, month, day]) => {

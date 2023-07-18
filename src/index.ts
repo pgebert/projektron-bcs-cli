@@ -107,7 +107,7 @@ const main = async () => {
         type: 'select',
         name: 'command',
         message: 'What do you want to do?',
-        choices: ['add', 'get', 'reset', 'check', 'quit']
+        choices: ['add', 'get', 'check', 'reset', 'quit']
     }).then(({command}) => {
 
         handleCommand(command).then(() => main())

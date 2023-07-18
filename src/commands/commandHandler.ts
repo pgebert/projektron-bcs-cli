@@ -4,6 +4,7 @@ import {handleResetCommand} from "./resetCommand";
 
 import {exit} from 'process'
 import {BcsClient} from "../bcsClient";
+import {handleCheckCommand} from "./checkCommand";
 
 
 export const handleCommand = async (command: string) => {
@@ -18,6 +19,9 @@ export const handleCommand = async (command: string) => {
             break;
         case 'reset':
             await handleResetCommand();
+            break;
+        case 'check':
+            await handleCheckCommand();
             break;
         case 'quit':
             BcsClient.getInstance().then((client) => client.close());
