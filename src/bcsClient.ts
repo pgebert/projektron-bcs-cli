@@ -33,10 +33,8 @@ export class BcsClient implements BcsClientInterface {
     private constructor() {
     }
 
-    private _isConnected: boolean = false
-
     get isConnected(): boolean {
-        return this._isConnected;
+        return this.browser?.isConnected() || false;
     }
 
     public static async getInstance(): Promise<BcsClient> {
@@ -71,13 +69,10 @@ export class BcsClient implements BcsClientInterface {
                 this.close();
                 throw new ForbiddenError(`Can not login to ${baseUrl}/bcs/login`);
             });
-
-        this._isConnected = true;
     }
 
     async close() {
-        this._isConnected = false;
-        await this.browser.close().then();
+        await this.browser.close();
     }
 
 
