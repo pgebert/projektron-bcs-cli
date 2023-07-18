@@ -30,15 +30,13 @@ npm install --location=global .
 
 ### Getting Started
 
-```shell
-set bcs_url=<BCS_URL>
-set bcs_username=<YOUR_USERNAME>
-set bcs_password=<YOUR_PASSWORD> 
+Simply run:
 
+```shell
 bcs
 ```
 
-Add your time recordings to BCS never was easier 🚀
+Adding your time recordings to BCS never has been easier 🚀
 
 Hints:
 
