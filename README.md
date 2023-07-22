@@ -10,6 +10,10 @@
 Command line interface (cli) to handle time recordings in Projectron BCS from your terminal - saving time, money and
 nerves.
 
+<center>
+<img src="docs/_media/terminal-demo.gif" width="90%" height="auto" />
+</center>
+
 # Design goals
 
 1. Providing an intuitive CLI for BCS
