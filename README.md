@@ -10,9 +10,9 @@
 Command line interface (cli) to handle time recordings in Projectron BCS from your terminal - saving time, money and
 nerves.
 
-<center>
-<img src="docs/_media/terminal-demo.gif" width="90%" height="auto" />
-</center>
+<p align="center">
+<img src="docs/_media/terminal-demo.gif" width="800px" height="auto" />
+</p>
 
 # Design goals
 
@@ -46,6 +46,8 @@ bcs
 ```
 
 Adding your time recordings to BCS never has been easier 🚀
+
+📢 You may want to adjust the `deriveProjectId` method in the `task` class to match your individual needs.
 
 Hints:
 
