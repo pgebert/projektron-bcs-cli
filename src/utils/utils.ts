@@ -5,7 +5,14 @@ const path = require("path");
 const envFilePath = path.resolve(__dirname, "../../.env");
 
 // read .env file & convert to array
-const readEnvVars = () => fs.readFileSync(envFilePath, "utf-8").split(os.EOL);
+const readEnvVars = () => {
+
+    if (!fs.existsSync(envFilePath)) {
+        fs.closeSync(fs.openSync(envFilePath, 'w'));
+    }
+
+    return fs.readFileSync(envFilePath, "utf-8").split(os.EOL);
+}
 
 /**
  * Finds the key in .env files and returns the corresponding value
