@@ -51,7 +51,6 @@ export const handleAddCommand = async () => {
                     // {name: 'more', message: 'Do want to add another task?', initial: 'true'}
                 ],
                 validate: ({time}) => {
-                    console.log("Called validation with ", time);
                     return validateTimeInput(time);
                 }
             },
