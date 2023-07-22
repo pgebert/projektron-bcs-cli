@@ -2,8 +2,9 @@
 
 <h1 align="center">bcs-cli</h1>
 
-<center><img alt="Static Badge" src="https://img.shields.io/badge/BCS_Version-V21.4-blue">
-</center>
+<p align="center">
+ <img alt="Static Badge" src="https://img.shields.io/badge/BCS_Version-V21.4-blue">
+</p>
 
 
 Command line interface (cli) to handle time recordings in Projectron BCS from your terminal - saving time, money and
