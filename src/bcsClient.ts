@@ -118,10 +118,16 @@ export class BcsClient implements BcsClientInterface {
         })
 
         await this.page.waitForSelector('select.calendarModeSelect');
-        await this.page.select('select.calendarModeSelect', 'M')
+        await this.page.select('select.calendarModeSelect', 'M');
 
-        const element = await this.page.waitForSelector('td.listsumfooter[name="deputatSummarySaldo"] > span');
-        const result = await element.evaluate(el => el.textContent);
+        let result = "00:00h";
+
+        await this.page.waitForSelector('td.listsumfooter[name="deputatSummarySaldo"] > span', {timeout: 500})
+            .then(async (element) => {
+                result = await element.evaluate(el => el.textContent);
+            })
+            .catch(() => {
+            });
 
         await this.page.goto(`${this.baseUrl}/bcs/mybcs/dayeffortrecording/`)
 
