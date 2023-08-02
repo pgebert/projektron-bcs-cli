@@ -1,7 +1,7 @@
 {
   "name": "bcs-cli",
   "version": "0.0.1",
-  "description": "LI to projectron BCS software.",
+  "description": "CLI to projectron BCS software.",
   "author": "Patrick Gebert",
   "license": "Apache 2.0",
   "main": "index.js",
