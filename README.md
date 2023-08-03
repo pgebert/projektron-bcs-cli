@@ -1,6 +1,6 @@
-![bcs-cli](docs/_media/bcs_cli_header.png "bcs-cli")
+![projektron-bcs-cli](https://github.com/pgebert/projektron-bcs-cli/assets/6838540/6dca9cef-bc3b-4f55-9b01-f323b2a7db21)
 
-<h1 align="center">bcs-cli</h1>
+<h1 align="center">projektron-bcs-cli</h1>
 
 <p align="center">
  <img alt="Static Badge" src="https://img.shields.io/badge/BCS_Version-V21.4-blue">
@@ -11,7 +11,7 @@ Command line interface (cli) to handle time recordings in Projectron BCS from yo
 nerves.
 
 <p align="center">
-<img src="docs/_media/terminal-demo.gif" width="800px" height="auto" />
+<img src="https://github.com/pgebert/projektron-bcs-cli/assets/6838540/ed9f7559-c5e0-497c-aa15-0491ba400b1c" width="800px" height="auto" />
 </p>
 
 # Design goals
