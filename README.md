@@ -7,7 +7,7 @@
 </p>
 
 
-Command line interface (cli) to handle time recordings in Projectron BCS from your terminal - saving time, money and
+Command line interface (cli) to handle time recordings in Projektron BCS from your terminal - saving time, money and
 nerves.
 
 <p align="center">
@@ -25,27 +25,18 @@ nerves.
 
 - node >= v16.16.0
 
-## Installation
+## Getting Started
 
-Clone this repository and execute the following steps:
-
-```shell
-cd bcs-cli
-npm run build
-npm install --location=global .
-```
-
-## Examples
-
-### Getting Started
-
-Simply run:
+Simply run the following and follow the instructions:
 
 ```shell
+npm install -g projektron-bcs-cli
 bcs
 ```
 
 Adding your time recordings to BCS never has been easier 🚀
+
+## Additional Notes
 
 📢 You may want to adjust the `deriveProjectId` method in the `task` class to match your individual needs.
 
@@ -58,6 +49,16 @@ Hints:
 ## 🤝 Contributing
 
 Contributions, [issues](https://github.com/pgebert/bcs-cli/issues) and feature requests are welcome!
+
+## Installation from source
+
+Clone this repository and execute the following steps:
+
+```shell
+cd bcs-cli
+npm run build
+npm install --location=global .
+```
 
 ## 💻 Development
 
