@@ -1,0 +1,22 @@
+[
+  {
+    "source": "description",
+    "regex": "daily",
+    "projectId": 1678898995032
+  },
+  {
+    "source": "ticket",
+    "regex": "orgsese-",
+    "projectId": 1678898695172
+  },
+  {
+    "source": "ticket",
+    "regex": "oramy-",
+    "projectId": 1678898995032
+  },
+  {
+    "source": "ticket",
+    "regex": "sm-",
+    "projectId": 1686218840677
+  }
+]
