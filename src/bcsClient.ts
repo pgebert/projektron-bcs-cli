@@ -56,7 +56,7 @@ export class BcsClient implements BcsClientInterface {
         this.page = await this.browser.newPage();
         await this.page.setViewport(this.viewport);
 
-        await this.page.goto(`${baseUrl}/bcs/login`, {timeout: 2000})
+        await this.page.goto(`${baseUrl}/bcs/login`, {timeout: 3000})
             .catch((e) => {
                 this.close();
                 throw new PageNotFoundError(`Can not reach ${baseUrl}/bcs/login`);
@@ -67,7 +67,7 @@ export class BcsClient implements BcsClientInterface {
         await this.page.click('#loginbutton');
 
         // TODO fail fast on failed login
-        await this.page.waitForSelector('input.notificationPermissionLater', {timeout: 2000})
+        await this.page.waitForSelector('input.notificationPermissionLater', {timeout: 4000})
             .then((btn) => btn.click())
             .catch((e) => {
                 this.close();

@@ -3,7 +3,7 @@
 import {config as dotenvConfig} from 'dotenv';
 import {handleCommand} from "./commands/commandHandler";
 import {BcsClient, ForbiddenError, PageNotFoundError} from "./bcsClient";
-import {setEnvValue} from "./utils/utils";
+import {setEnvValue} from "./utils/envUtils";
 
 const colors = require('ansi-colors');
 const {prompt} = require('enquirer');
@@ -113,7 +113,7 @@ const main = async () => {
         type: 'select',
         name: 'command',
         message: 'What do you want to do?',
-        choices: ['add', 'get', 'check', 'reset', 'quit']
+        choices: ['add', 'get', 'check', 'reset', 'mapping', 'quit']
     }).then(({command}) => {
 
         handleCommand(command).then(() => main())
