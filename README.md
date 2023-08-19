@@ -4,7 +4,7 @@
 
 <p align="center">
  <img alt="Static Badge" src="https://img.shields.io/badge/BCS_Version-V21.4-blue">
-</p>
+</p
 
 
 Command line interface (cli) to handle time recordings in Projektron BCS from your terminal - saving time, money and
@@ -36,9 +36,23 @@ bcs
 
 Adding your time recordings to BCS never has been easier 🚀
 
+## Commands
+
+Currently, the following commands are supported:
+
+| Command | Description                                                                         |
+|---------|-------------------------------------------------------------------------------------|
+| add     | Add your time recordings for a specific day (overwrites your previous recordings!). |
+| get     | Show your time recordings for a specific day.                                       |
+| reset   | Reset your time recordings for a specific date.                                     |
+| check   | Show your monthly time balance.                                                     |
+| mapping | Customize the task to projectId mapping for your needs!                             |
+| quit    | Quit the cli.                                                                       |
+
 ## Additional Notes
 
-📢 You may want to adjust the `deriveProjectId` method in the `task` class to match your individual needs.
+📢 You may want to use the `mapping` command to customize the task to projectId mapping for your needs
+and let the cli do the magic for you.
 
 Hints:
 
