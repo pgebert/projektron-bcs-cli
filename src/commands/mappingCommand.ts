@@ -50,6 +50,7 @@ export const handleMappingCommand = async () => {
     const prompt = new Input({
         message: 'Please edit the task to projectId mapping:',
         initial: mapping.map(m => "\n" + JSON.stringify(m)).join(""),
+        footer: '\nPress \"tab\" to insert and edit the existing mapping. Press \"enter\" two time to save your input.',
         multiline: true,
         validate: validateTaskToProjectMapping
     });
