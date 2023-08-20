@@ -12,19 +12,24 @@ export const handleCommand = async (command: string) => {
 
     switch (command) {
         case 'add':
-            await handleAddCommand();
+            await handleAddCommand()
+                .catch(console.error);
             break;
         case 'get':
-            await handleGetCommand();
+            await handleGetCommand()
+                .catch(console.error);
             break;
         case 'reset':
-            await handleResetCommand();
+            await handleResetCommand()
+                .catch(console.error);
             break;
         case 'check':
-            await handleCheckCommand();
+            await handleCheckCommand()
+                .catch(console.error);
             break;
         case 'mapping':
-            await handleMappingCommand();
+            await handleMappingCommand()
+                .catch(console.error);
             break;
         case 'quit':
             BcsClient.getInstance().then((client) => client.close());
