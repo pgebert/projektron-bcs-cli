@@ -57,6 +57,7 @@ and let the cli do the magic for you.
 Hints:
 
 - use `tab` to keep and edit initial values
+- use `ctrl+c` to escape from the current prompt and return to beginning
 
 # Miscellaneous
 
