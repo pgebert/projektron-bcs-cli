@@ -1,5 +1,6 @@
 import puppeteer, {Browser, Page} from "puppeteer";
 import {Task} from "./task";
+import {Time} from "./time";
 
 export class PageNotFoundError extends Error {
     constructor(m: string) {
@@ -89,6 +90,9 @@ export class BcsClient implements BcsClientInterface {
             await this.insertTask(task);
         }
 
+        const total = tasks.map((task) => task.time).reduce((a, b) => a.plus(b), new Time(0));
+        await this.insertPresence(total)
+
         await this.save();
     }
 
@@ -105,6 +109,7 @@ export class BcsClient implements BcsClientInterface {
         await this.selectDate(date);
 
         await this.resetAllTasks();
+        await this.resetPresence();
 
         await this.save();
     }
@@ -163,6 +168,15 @@ export class BcsClient implements BcsClientInterface {
         }
     }
 
+    private async insertPresence(time: Time) {
+        await this.page.evaluate(time => {
+
+            const timeInput = document.querySelector(`td[name="attandenceDuration"] > span > input:nth-child(3)`) as HTMLInputElement;
+            timeInput.value = time.minutes.toString();
+
+        }, time);
+    }
+
     private async fetchTasks(): Promise<Task[]> {
 
         const values = await this.page.evaluate(async () => {
@@ -202,6 +216,20 @@ export class BcsClient implements BcsClientInterface {
 
             const cleanButtons = document.querySelectorAll("a.cleanTimeRecordingRow_Link")
             cleanButtons.forEach(button => (button as HTMLInputElement).click())
+        });
+
+    }
+
+    private async resetPresence() {
+
+        await this.page.evaluate(() => {
+
+            const timeInput = document.querySelector(`td[name="attandenceDuration"] > span`);
+            const hourInput = timeInput.querySelector(`input:nth-child(1)`) as HTMLInputElement;
+            const minuteInput = timeInput.querySelector(`input:nth-child(3)`) as HTMLInputElement;
+            
+            hourInput.value = '0';
+            minuteInput.value = '0';
         });
 
     }
