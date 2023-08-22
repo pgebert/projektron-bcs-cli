@@ -95,6 +95,10 @@ npm run start
 
 # test
  npm run test
+ 
+ # install global
+ npm run build
+ npm install -g projektron-bcs-cli .
 ```
 
 ## Show your support

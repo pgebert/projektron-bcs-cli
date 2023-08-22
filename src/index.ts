@@ -4,10 +4,12 @@ import {config as dotenvConfig} from 'dotenv';
 import {handleCommand} from "./commands/commandHandler";
 import {BcsClient, ForbiddenError, PageNotFoundError} from "./bcsClient";
 import {setEnvValue} from "./utils/envUtils";
+import * as path from "path";
 
 const colors = require('ansi-colors');
 const {prompt} = require('enquirer');
-dotenvConfig();
+
+dotenvConfig({path: path.resolve(__dirname, '../.env')});
 
 
 colors.theme({
@@ -58,8 +60,7 @@ const main = async () => {
     let baseUrl = process.env.BCS_URL || 'https://bcs.de'
     let username = process.env.BCS_USERNAME || ''
     let password = process.env.BCS_PASSWORD || ''
-
-
+    
     const bcsClient = await BcsClient.getInstance();
 
     while (!bcsClient.isConnected) {
