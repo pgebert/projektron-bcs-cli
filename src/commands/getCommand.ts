@@ -1,4 +1,5 @@
 import {BcsClient} from "../bcsClient";
+import {TimeoutError} from "puppeteer";
 
 const {prompt} = require('enquirer');
 
@@ -6,7 +7,7 @@ const validateDateInput = (input: string): boolean => /\d{1,2}.\d{1,2}.\d{4}/i.t
 const dateFromString = (value: string): Date => new Date(value.split(".").reverse().join("-"));
 
 export const handleGetCommand = async () => {
-    
+
     await prompt([
         {
             type: 'input',
@@ -31,6 +32,12 @@ export const handleGetCommand = async () => {
             })));
         } else {
             console.log("No time recordings for this date!");
+        }
+    }).catch(e => {
+        console.log("Oh snap - something went wrong! 😕");
+
+        if (e instanceof TimeoutError) {
+            console.log("Received timeout error!");
         }
     });
 }

@@ -1,4 +1,5 @@
 import {BcsClient} from "../bcsClient";
+import {TimeoutError} from "puppeteer";
 
 const {prompt} = require('enquirer');
 
@@ -29,6 +30,12 @@ export const handleResetCommand = async () => {
             const bcsClient = await BcsClient.getInstance();
             await bcsClient.reset(date);
             console.log("Finished reset of all time recordings for this date!");
+        }
+    }).catch(e => {
+        console.log("Oh snap - something went wrong! 😕");
+
+        if (e instanceof TimeoutError) {
+            console.log("Received timeout error!");
         }
     });
 }

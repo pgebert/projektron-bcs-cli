@@ -1,6 +1,7 @@
 import {Task} from "../task";
 import {Time} from "../time";
 import {BcsClient} from "../bcsClient";
+import {TimeoutError} from "puppeteer";
 
 const {prompt} = require('enquirer');
 
@@ -92,6 +93,12 @@ export const handleAddCommand = async () => {
             //TODO may reset before or make add more robust
             await bcsClient.reset(targetDate)
             await bcsClient.add(targetDate, tasks).then(() => console.log("Saved new tasks"))
+        }
+    }).catch(e => {
+        console.log("Oh snap - something went wrong! 😕");
+
+        if (e instanceof TimeoutError) {
+            console.log("Received timeout error!");
         }
     });
 }

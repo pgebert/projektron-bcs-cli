@@ -1,6 +1,9 @@
 import {readFromFile, writeToFile} from "../utils/fileUtils";
+import * as path from "path";
 
 const {Input} = require('enquirer');
+
+const mappingFilePath = path.resolve(__dirname, 'mapping.json')
 
 interface MappingItem {
     source: string;
@@ -11,7 +14,7 @@ interface MappingItem {
 
 export const handleMappingCommand = async () => {
 
-    const mappingFile = readFromFile('mapping.json') || '[]';
+    const mappingFile = readFromFile(mappingFilePath) || '[]';
     const mapping = JSON.parse(mappingFile);
 
     const validateTaskToProjectMapping = (input: string): string | boolean => {
@@ -59,7 +62,7 @@ export const handleMappingCommand = async () => {
         .then(input => {
             const mapping = input.split("\n").filter(m => m).map(m => JSON.parse(m));
             // console.log('ANSWER', mapping);
-            writeToFile('mapping.json', JSON.stringify(mapping));
+            writeToFile(mappingFilePath, JSON.stringify(mapping));
         })
         .catch(console.log);
 

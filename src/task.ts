@@ -1,6 +1,10 @@
 import {Time} from "./time";
 import {readFromFile} from "./utils/fileUtils";
 
+import * as path from "path";
+
+const mappingFilePath = path.resolve(__dirname, 'mapping.json')
+
 interface ITask {
     ticket: string
     description: string
@@ -37,7 +41,7 @@ export class Task {
         //     {regex: /sm-/i, value: '1686218840677', source: 'ticket'},
         // ];
 
-        const mappingFile = readFromFile('mapping.json') || '[]';
+        const mappingFile = readFromFile(mappingFilePath) || '[]';
         const mapping = JSON.parse(mappingFile);
 
         const patterns: IPattern[] = mapping.map(m => ({

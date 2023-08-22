@@ -169,12 +169,19 @@ export class BcsClient implements BcsClientInterface {
     }
 
     private async insertPresence(time: Time) {
-        await this.page.evaluate(time => {
 
-            const timeInput = document.querySelector(`td[name="attandenceDuration"] > span > input:nth-child(3)`) as HTMLInputElement;
-            timeInput.value = time.minutes.toString();
+        // 60 minutes of break
+        const minutesOfBreak = 60;
 
-        }, time);
+        // clear fields so type can work as expected
+        await this.clearPresenceInputFields()
+
+        // Insert break
+        await this.page.type('tr:nth-child(2) >td[name="attandenceDuration"] > span > input:nth-child(3)', minutesOfBreak.toString());
+
+        // Insert presence
+        await this.page.type('tr:nth-child(1) >td[name="attandenceDuration"] > span > input:nth-child(3)', (time.minutes + minutesOfBreak).toString());
+
     }
 
     private async fetchTasks(): Promise<Task[]> {
@@ -222,16 +229,15 @@ export class BcsClient implements BcsClientInterface {
 
     private async resetPresence() {
 
-        await this.page.evaluate(() => {
+        // 60 minutes of break
+        const minutesOfBreak = 60;
 
-            const timeInput = document.querySelector(`td[name="attandenceDuration"] > span`);
-            const hourInput = timeInput.querySelector(`input:nth-child(1)`) as HTMLInputElement;
-            const minuteInput = timeInput.querySelector(`input:nth-child(3)`) as HTMLInputElement;
-            
-            hourInput.value = '0';
-            minuteInput.value = '0';
-        });
+        // clear fields so type can work as expected
+        await this.clearPresenceInputFields()
 
+        // reset presence and break values
+        await this.page.type('tr:nth-child(1) >td[name="attandenceDuration"] > span > input:nth-child(3)', minutesOfBreak.toString());
+        await this.page.type('tr:nth-child(2) >td[name="attandenceDuration"] > span > input:nth-child(3)', minutesOfBreak.toString());
     }
 
     private async selectDate(date: Date) {
@@ -259,5 +265,15 @@ export class BcsClient implements BcsClientInterface {
             this.page.waitForSelector('a.dayHighlighted').then((btn) => btn.click()),
             this.page.waitForNavigation()
         ]);
+    }
+
+    private async clearPresenceInputFields() {
+        await Promise.all([
+            this.page.$eval('tr:nth-child(1) > td[name="attandenceDuration"] > span > input:nth-child(1)', el => el.value = '0'),
+            this.page.$eval('tr:nth-child(1) > td[name="attandenceDuration"] > span > input:nth-child(3)', el => el.value = '0'),
+            this.page.$eval('tr:nth-child(2) > td[name="attandenceDuration"] > span > input:nth-child(1)', el => el.value = '0'),
+            this.page.$eval('tr:nth-child(2) > td[name="attandenceDuration"] > span > input:nth-child(3)', el => el.value = '0'),
+        ])
+
     }
 }
