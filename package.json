@@ -1,6 +1,6 @@
 {
   "name": "projektron-bcs-cli",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "CLI for the Projektron BCS software.",
   "author": "Patrick Gebert",
   "license": "Apache 2.0",
